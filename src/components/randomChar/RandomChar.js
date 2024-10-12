@@ -1,41 +1,35 @@
 import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
-import {Component} from 'react';
-import MarvelServices from '../../services/MarvelServices';
+import {useState,useEffect} from 'react';
+import useMarvelServices from '../../services/MarvelServices';
 import Spinner from '../spinner/Spinner';
 
-class RandomChar extends Component{
-    state = {
-        char:{},
-        loading:true,
-        error:'',
+const RandomChar = (props) => {
+const [char,setChar] = useState(null);
+const {loading,error,getCharacter} = useMarvelServices();
+  useEffect(()=>{
+    updateModal();
+    const timerId = setInterval(updateModal,60000);
+    return ()=>{
+        clearInterval(timerId);
     }
-  componentDidMount(){
-    this.updateModal();
-  }
-    onCharLoaded = (char) => {
-        this.setState({char,loading:false})
+  },[])
+    const onCharLoaded = (char) => {
+        setChar(char);
     }
-    marvelServices = new MarvelServices();
- updateModal = () => {
+
+ const updateModal = () => {
     const id = Math.floor(Math.random()*(1011400-1011000)+1011000);
-    this.marvelServices
-    .getCharacter(id)
-    .then(this.onCharLoaded)
-    .catch((error) => {
-        this.setState({ error });
-      });
+    getCharacter(id)
+    .then(onCharLoaded)
  }
- onUpdateClick = () => {
-    this.setState({loading:true})
-    this.updateModal();
- }
+ const spinner=  loading ? <Spinner/> : null;
+ const content = !(loading||error||!char) ? <View char={char}/>:null;
  
-    render(){
-        const {char,loading} = this.state;
         return (
             <div className="randomchar">
-                  {loading?<Spinner/>:<View char={char}/>}
+                 {spinner}
+                 {content}
                 <div className="randomchar__static">
                     <p className="randomchar__title">
                         Random character for today!<br/>
@@ -44,7 +38,7 @@ class RandomChar extends Component{
                     <p className="randomchar__title">
                         Or choose another one
                     </p>
-                    <button onClick={this.onUpdateClick} className="button button__main">
+                    <button onClick={updateModal} className="button button__main">
                         <div className="inner">try it</div>
                     </button>
                     <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>
@@ -53,7 +47,7 @@ class RandomChar extends Component{
         )
     }
     
-}
+
 const View = ({char}) => {
     const {name,description,thumbnail,homepage,wiki} = char
     return (

@@ -1,7 +1,9 @@
 import './singleComic.scss';
-import xMen from '../../resources/img/x-men.png';
-
+import useMarvelServices from '../../services/MarvelServices';
+import Spinner from '../spinner/Spinner';
 const SingleComic = () => {
+    const {getComics,loading,error} = useMarvelServices();
+    
     return (
         <div className="single-comic">
             <img src={xMen} alt="x-men" className="single-comic__img"/>

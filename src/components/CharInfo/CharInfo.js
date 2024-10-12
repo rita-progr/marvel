@@ -1,54 +1,32 @@
 import "./CharInfo.scss";
-import { Component } from "react";
-import MarvelServices from "../../services/MarvelServices";
+import {useState,useEffect} from "react";
+import useMarvelServices from "../../services/MarvelServices";
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Spinner from "../spinner/Spinner";
 import Skeleton from '../skeleton/Skeleton';
 import PropTypes from "prop-types";
-class CharInfo extends Component {
-  state = {
-    char: null,
-    loading: false,
-    error:false,
-  };
-  marvelServices = new MarvelServices();
-  componentDidMount() {
-    this.updateChar();
-  }
-componentDidUpdate(prevProps){
-if(this.props.charId !== prevProps.charId){
-    this.updateChar();
-}
-}
-updateChar = () => {
-    const { charId } = this.props;
+const CharInfo = (props) => {
+  const [char,setChar] = useState(null);
+  const {getCharacter,error,loading,clearError} = useMarvelServices();
+  useEffect(() => {
+    updateChar()
+}, [props.charId])
+
+const updateChar =  () => {
+    const { charId } = props;
     if (!charId) {
       return;
     }
-    this.onCharLoading();
-    this.marvelServices
-      .getCharacter(charId)
-      .then(this.onCharLoaded)
-      .catch(this.onError)
-  };
-  onCharLoading = () => {
-    this.setState({
-        loading: true
-    })
-}
-  onCharLoaded = (char) =>{
-    this.setState({ char, loading: false });
+    clearError();
+      getCharacter(charId)
+      .then(onCharLoaded);
   }
 
-  onError = () => {
-    this.setState({
-        error: true,
-        loading: false
-    })
-}
-  render() {
-    const { char, loading, error } = this.state;
-  
+  const onCharLoaded = (char) =>{
+    setChar(char);
+  }
+
+
     const skeleton = loading || char||error? null : <Skeleton />;
     const errormessage = error?<ErrorMessage/>:null;
     const spinner = loading ? <Spinner /> : null;
@@ -63,7 +41,7 @@ updateChar = () => {
       </div>
     );
   }
-}
+
 const View = ({ char }) => {
     const {name,description,thumbnail,homepage,wiki,comics} = char
   return (
@@ -102,3 +80,4 @@ CharInfo.propTypes = {
   charId: PropTypes.number
 }
 export default CharInfo;
+
