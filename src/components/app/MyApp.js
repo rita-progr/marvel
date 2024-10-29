@@ -1,47 +1,26 @@
-import { useState } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { lazy, Suspense} from "react";
+import { BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import AppHeader from "../AppHeader/AppHeader";
-import CharInfo from "../CharInfo/CharInfo";
-import CharList from "../CharList/CharList";
-import RandomChar from "../randomChar/RandomChar";
-import ErrorBoundary from "../errorBoundary/ErrorBoundary";
-import ComicsList from "../comicsList/ComicsList";
-import AppBanner from "../AppBanner/AppBanner";
+import Spinner from "../spinner/Spinner";
 
-import decoration from "../../resources/img/vision.png";
+const ErrorPage = lazy(()=>import('../pages/errorPage'));
+const MainPage = lazy(()=>import('../pages/MainPage'));
+const SecondPage = lazy(()=>import('../pages/SecondPage'));
+const SingleComicPage = lazy(()=>import('../pages/SingleComicPage'));
 const App = () => {
-  const [selectedId, setselectedId] = useState(null);
-  const onCharSelected = (id) => {
-    setselectedId(id);
-  };
-  const onComicSelected = (id) => {
-    setselectedId(id);
-  };
   return (
     <Router>
       <div className="app">
         <AppHeader />
         <main>
-          <Switch>
-            <Route exact path="/">
-              <ErrorBoundary>
-                <RandomChar />
-              </ErrorBoundary>
-              <div className="char__content">
-                <ErrorBoundary>
-                  <CharList onCharSelected={onCharSelected} />
-                </ErrorBoundary>
-                <ErrorBoundary>
-                  <CharInfo charId={selectedId} />
-                </ErrorBoundary>
-              </div>
-              <img className="bg-decoration" src={decoration} alt="vision" />
-            </Route>
-            <Route exact path="/comics">
-              <AppBanner />
-              <ComicsList />
-            </Route>
-          </Switch>
+          <Suspense fallback = {<Spinner/>}>
+          <Routes>
+            <Route path="/" element={<MainPage/>}/>
+            <Route path="/comics" element={<SecondPage/>}/>
+            <Route path="/comics/:comicId" element={<SingleComicPage/>}/>
+            <Route path ='*' element = {<ErrorPage/>}/>
+          </Routes>
+          </Suspense>
         </main>
       </div>
     </Router>

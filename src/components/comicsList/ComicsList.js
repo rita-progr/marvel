@@ -1,11 +1,31 @@
 import './comicsList.scss';
 import Spinner from "../spinner/Spinner";
 import useMarvelServices from '../../services/MarvelServices';
+import ErrorMessage from '../errorMessage/ErrorMessage';
 import {useState,useEffect,useRef } from 'react';
+import { Link } from 'react-router-dom';
 
-
-const ComicsList = (props) => {
-const {loading,error,getAllComics,clearError} = useMarvelServices();
+const setContent = (process,Component,newItemLoading) => {
+    switch (process){
+      case 'waiting':
+        return  <Spinner />;
+        break;
+      case 'loading':
+        return newItemLoading ?<Component/> : <Spinner /> ;
+        break;
+      case 'confirmed':
+        return <Component />;
+        break;
+      case 'error':
+        return <ErrorMessage/>;
+        break;
+      default: 
+        throw new Error('Unexpected process state')
+      
+    }
+  }
+const ComicsList = () => {
+const {loading,getAllComics,process,setProcess} = useMarvelServices();
 const [comicsList,setComicsList] = useState([]);
 const [offset,setOffset] = useState(210);
 const [charEnded,setCharEnded] = useState(false);
@@ -17,10 +37,11 @@ const onRequest = (offset,initial) => {
     initial?setNewItemLoading(false) : setNewItemLoading(true);
     getAllComics(offset)
     .then(onComicsListLoaded)
+    .then(()=>setProcess('confirmed'))
 }
 const onComicsListLoaded = (newComicsList) => {
     let ended = false;
-    if(newComicsList.length<9){
+    if(newComicsList.length<8){
         ended = true;
     }
     setComicsList([...comicsList,...newComicsList]);
@@ -51,38 +72,33 @@ function renderItems(arr){
             key = {item.id}
             ref = {(el)=>itemsRef.current[i]=el}
             onClick = {()=>{
-                props.onComicSelected(item.id);
                 onFocusItem(i);
             }}
             onKeyPress = {(e)=>{
                 if(e.key === ' ' || e.key === 'Enter'){
-                 props.onComicSelected(item.id);
                  onFocusItem(i);
                 } 
                }}
                >
-                    <a href="#">
+                    <Link to ={`/comics/${item.id}`}>
                         <img src={item.thumbnail} alt={item.title} style={imgStyle} className="comics__item-img"/>
                         <div className="comics__item-name">{item.title}</div>
                         <div className="comics__item-price">{item.price}</div>
-                    </a>
+                    </Link>
                 </li>
         )
     })
     return  <ul className="comics__grid">{items}</ul>
 }
-const items = renderItems(comicsList);
 
-const spinner = loading ? <Spinner /> : null;
+
     return (
         <div className="comics__list">
-           {items}
-            {spinner}
+           {setContent(process,()=>renderItems(comicsList),newItemLoading)}
             <button className="button button__main button__long"
               disabled={newItemLoading}
               onClick={() => onRequest(offset)}
-              style={{ display: charEnded ? "none" : "block" }}
-            >
+              style={{'display' : charEnded ? 'none' : 'block'}}>
                 <div className="inner">load more</div>
             </button>
         </div>

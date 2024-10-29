@@ -7,15 +7,19 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "dart-sass": "^1.25.0",
+    "formik": "^2.4.6",
     "nth-check": "^2.0.1",
     "postcss": "^8.4.31",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^5.0.0",
+    "react-helmet": "^6.1.0",
+    "react-router-dom": "^6.1.0",
     "react-scripts": "^5.0.1",
-    "sass": "^1.79.3",
-    "web-vitals": "^2.1.4"
+    "react-transition-group": "^4.4.5",
+    "sass": "^1.80.3",
+    "web-vitals": "^2.1.4",
+    "yup": "^1.4.0"
   },
   "scripts": {
     "start": "react-scripts start",
