@@ -24,10 +24,6 @@ const updateChar =  () => {
   const onCharLoaded = (char) =>{
     setChar(char);
   }
-
-
-
-  
     return (
       <div className="char__info">
         {setContent(process,View,char)}
